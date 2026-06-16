@@ -19,7 +19,7 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true, minlength: 6 })
+  @Prop({ required: true, minlength: 6})
   password: string;
 
   @Prop({ required: true, default: Role.Student })

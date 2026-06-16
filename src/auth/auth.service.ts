@@ -20,7 +20,7 @@ export class AuthService {
       
         const payload = { sub: user._id, email: user.email };
         const token = await this.jwtService.signAsync(payload);
-        return {access_token: token};
+        return {user: user, access_token: token};
     }
 
     async loginUser(loginUserDto: LoginUserDto) {
@@ -34,8 +34,8 @@ export class AuthService {
           throw new UnauthorizedException('Invalid password');
         }
       
-        const payload = { sub: user._id, email: user.email};
+        const payload = { sub: user._id, email: user.email, role: user.role };
         const token = await this.jwtService.signAsync(payload);
-        return {access_token: token};
+        return {user: user, access_token: token};
     }
 }
