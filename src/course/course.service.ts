@@ -6,18 +6,35 @@ import { Course } from './schemas/course.entity';
 import { Model } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { AuditService } from '../audit/audit.service';
+import { AuditAction } from '../audit/audit.enum';
 
 @Injectable()
 export class CourseService {
-  constructor(@InjectModel(Course.name) private courseModel: Model<Course>) {}
+  constructor(
+    @InjectModel(Course.name)
+    private courseModel: Model<Course>,
+    private readonly auditService: AuditService,
+  ) {}
 
-  async create(createCourseDto: CreateCourseDto) {
-    return await this.courseModel.create({
+  async create(createCourseDto: CreateCourseDto, auth) {
+    const course = await this.courseModel.create({
       name: createCourseDto.name,
       description: createCourseDto.description,
       level: createCourseDto.level,
       price: createCourseDto.price,
     });
+
+    await this.auditService.log({
+      userId: auth?.sub,
+      action: AuditAction.CREATE_COURSE,
+      entityType: Course.name,
+      entityId: course._id.toString(),
+      data: createCourseDto,
+      description: 'New course created',
+    });
+
+    return course;
   }
 
   async findAll() {
@@ -36,21 +53,51 @@ export class CourseService {
     return course;
   }
 
-  async update(id: string, updateCourseDto: UpdateCourseDto) {
+  async update(id: string, updateCourseDto: UpdateCourseDto, auth) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid course ID');
     }
-    return await this.courseModel.findByIdAndUpdate(
+
+
+
+    const course = await this.courseModel.findByIdAndUpdate(
       { _id: id },
       updateCourseDto,
       { new: true },
     );
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    await this.auditService.log({
+      userId: auth?.sub,
+      action: AuditAction.UPDATE_COURSE,
+      entityType: Course.name,
+      entityId: course._id.toString(),
+      data: updateCourseDto,
+      description: 'Course updated',
+    });
+
+    return course;
   }
 
-  async delete(id: string) {
+  async delete(id: string, auth) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid course ID');
     }
-    return await this.courseModel.findByIdAndDelete({ _id: id });
+    const course = await this.courseModel.findByIdAndDelete({ _id: id });
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+    await this.auditService.log({
+      userId: auth?.sub,
+      action: AuditAction.DELETE_COURSE,
+      entityType: Course.name,
+      entityId: course._id.toString(),
+      data: { id },
+      description: 'Course deleted',
+    });
+    return course;
   }
 }

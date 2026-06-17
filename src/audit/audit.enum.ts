@@ -1,0 +1,11 @@
+export enum AuditAction {
+    CREATE = 'CREATE',
+    UPDATE = 'UPDATE',
+    DELETE = 'DELETE',
+    READ = 'READ',
+
+    CREATE_COURSE = 'CREATE_COURSE',
+    UPDATE_COURSE = 'UPDATE_COURSE',
+    DELETE_COURSE = 'DELETE_COURSE',
+    READ_COURSE = 'READ_COURSE',
+}

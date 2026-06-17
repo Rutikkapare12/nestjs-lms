@@ -1,0 +1,19 @@
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AuditLog, AuditLogSchema } from './schema/audit.schma';
+import { AuditService } from './audit.service';
+
+@Module({
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: AuditLog.name,
+        schema: AuditLogSchema,
+      },
+    ]),
+  ],
+  controllers: [],
+  providers: [AuditService],
+  exports: [AuditService],
+})
+export class AuditModule {}

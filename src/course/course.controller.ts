@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -15,8 +15,8 @@ export class CourseController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin)
   @Post('create')
-  create(@Body() createCourseDto: CreateCourseDto) {
-    return this.courseService.create(createCourseDto);
+  create(@Body() createCourseDto: CreateCourseDto, @Req() req) {
+    return this.courseService.create(createCourseDto, req.user);
   }
 
   @Get('all')
@@ -30,12 +30,12 @@ export class CourseController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.courseService.update(id, updateCourseDto);
+  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto, @Req() req) {
+    return this.courseService.update(id, updateCourseDto, req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.courseService.delete(id);
+  remove(@Param('id') id: string, @Req() req) {
+    return this.courseService.delete(id, req.user);
   }
 }
