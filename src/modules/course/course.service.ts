@@ -6,8 +6,8 @@ import { Course } from './schemas/course.entity';
 import { Model } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { AuditService } from '../audit/audit.service';
-import { AuditAction } from '../audit/audit.enum';
+import { AuditService } from '../../audit/audit.service';
+import { AuditAction } from '../../audit/audit.enum';
 
 @Injectable()
 export class CourseService {
@@ -58,8 +58,6 @@ export class CourseService {
       throw new BadRequestException('Invalid course ID');
     }
 
-
-
     const course = await this.courseModel.findByIdAndUpdate(
       { _id: id },
       updateCourseDto,
@@ -98,6 +96,7 @@ export class CourseService {
       data: { id },
       description: 'Course deleted',
     });
+
     return course;
   }
 }

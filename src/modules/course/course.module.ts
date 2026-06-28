@@ -7,8 +7,8 @@ import { AuditModule } from 'src/audit/audit.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]), 
-    AuditModule
+    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
+    AuditModule,
   ],
   controllers: [CourseController],
   providers: [CourseService],

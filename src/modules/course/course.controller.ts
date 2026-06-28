@@ -1,11 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+} from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../../auth/auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
-import { Role } from 'src/user/user.types';
+import { Role } from '../user/user.types';
 import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('courses')
@@ -26,11 +35,15 @@ export class CourseController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.courseService.findOne(id);;
+    return await this.courseService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto, @Req() req) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @Req() req,
+  ) {
     return this.courseService.update(id, updateCourseDto, req.user);
   }
 

@@ -5,15 +5,14 @@ import { LoginUserDto } from './dto/loginUser.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { Request } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
-import { log } from 'console';
+import { UserService } from '../modules/user/user.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-) {}
+  ) {}
 
   @Post('register')
   async register(@Body() registerUserDto: RegisterUserDto) {

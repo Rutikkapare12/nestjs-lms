@@ -5,7 +5,6 @@ import { Types } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
-
 @Schema()
 export class User {
   _id: Types.ObjectId;
@@ -19,7 +18,7 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true, minlength: 6})
+  @Prop({ required: true, minlength: 6 })
   password: string;
 
   @Prop({ required: true, default: Role.Student })

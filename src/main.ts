@@ -1,33 +1,54 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
-import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
+import { AllExceptionsFilter } from './common/filters';
+import { ResponseInterceptor, LoggingInterceptor } from './common/interceptors';
+import { CustomLoggerService } from './common/services/logger.service';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-      logger: WinstonModule.createLogger({
-        level: 'debug',
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.ms(),
-          winston.format.printf(
-            ({ timestamp, level, message, context }) =>
-              `${timestamp} [${context || 'Application'}] ${level}: ${message}`,
-          ),
-        ),
-        transports: [
-          new winston.transports.Console(),
-          new winston.transports.File({
-            filename: 'logs/app.log',
-          }),
-        ],
-      }),
-    },
+  const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const logLevel = configService.get('LOG_LEVEL', 'debug');
+  const port = configService.get('PORT', 3000);
+
+  const logger = new CustomLoggerService(logLevel);
+  app.useLogger(logger);
+
+  // Global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Global interceptors
+  app.useGlobalInterceptors(
+    new LoggingInterceptor(),
+    new ResponseInterceptor(),
   );
-  app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new GlobalExceptionFilter());
-  await app.listen(process.env.PORT ?? 3000);
+
+  // Global validation pipe with transformation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  // Enable CORS for production
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || '*',
+    credentials: true,
+  });
+
+  // Set API version prefix
+  const apiVersion = configService.get('API_VERSION', 'v1');
+  app.setGlobalPrefix(`api/${apiVersion}`);
+
+  await app.listen(port);
+  logger.log(`Application listening on port ${port}`, 'Bootstrap');
 }
+
 bootstrap();

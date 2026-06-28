@@ -12,7 +12,6 @@ import { AuditService } from './audit.service';
       },
     ]),
   ],
-  controllers: [],
   providers: [AuditService],
   exports: [AuditService],
 })
